@@ -32,7 +32,7 @@ export default {
                 });
 
                 this.marker.setMap(this.map);
-
+                this.map.addOverlayMapTypeId(kakao.maps.MapTypeId.TRAFFIC);
                 // window.kakao.maps.event.addListener(this.map, 'click', function(mouseEvent) {        
                 //     this.mouseLatlng = mouseEvent.latLng; 
                 //     this.marker.setPosition(this.mouseLatlng);
