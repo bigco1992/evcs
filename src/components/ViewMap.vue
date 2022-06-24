@@ -5,6 +5,7 @@
 </template>
 
 <script>
+import axios from "axios";
 
 export default {
     data() {
@@ -14,10 +15,15 @@ export default {
             marker : null,
             mapOptions : null,
             mouseLatlng : null,
+            bounds : null,
+            swLatlng : null,
+            neLatlng : null,
         }
     }, 
     methods : {
         drawMap() {
+            var _this = this;
+            
             this.wrapper = document.querySelector(".mapWrapper");
 
             navigator.geolocation.getCurrentPosition((pos) => {
@@ -33,12 +39,30 @@ export default {
 
                 this.marker.setMap(this.map);
                 this.map.addOverlayMapTypeId(kakao.maps.MapTypeId.TRAFFIC);
-                // window.kakao.maps.event.addListener(this.map, 'click', function(mouseEvent) {        
-                //     this.mouseLatlng = mouseEvent.latLng; 
-                //     this.marker.setPosition(this.mouseLatlng);
-                // });
+
+                window.kakao.maps.event.addListener(_this.map, 'click', function(mouseEvent) {        
+                    _this.mouseLatlng = mouseEvent.latLng; 
+                    _this.marker.setPosition(_this.mouseLatlng);
+                    // 위도
+                    console.log(_this.mouseLatlng.La);
+                    // 경도
+                    console.log(_this.mouseLatlng.Ma);
+
+                    _this.fetchData(_this.mouseLatlng.La, _this.mouseLatlng.Ma);
+                });
+
+                window.kakao.maps.event.addListener(this.map, 'bounds_changed', function() {             
+                    _this.bounds = _this.map.getBounds();
+                    _this.swLatlng = _this.bounds.getSouthWest();
+                    _this.neLatlng = _this.bounds.getNorthEast();
+                });
             });
         },
+
+        async fetchData(la, ma) {
+            const response = await axios.get(`?lat=${ma}&lng=${la}`);
+            console.log(response);
+        }
     },
     mounted() {
         if (!window.kakao || !window.kakao.maps) {
