@@ -4,6 +4,6 @@ module.exports = defineConfig({
   transpileDependencies: true,
   lintOnSave: false,
   devServer: {
-    proxy : 'https://evloadapi.herokuapp.com/'
+    proxy : "https://evloadapi.herokuapp.com/",
   }
 });
