@@ -60,8 +60,9 @@ export default {
         },
 
         async fetchData(la, ma) {
-            const response = await axios.get(`?lat=${ma}&lng=${la}`);
-            console.log(response);
+            // const response = await axios.get(`https://evloadapi.herokuapp.com/?lat=${ma}&lng=${la}`);
+            const test = await axios.get(`https://evloadapi.herokuapp.com/?lat=${ma}&lng=${la}`);
+            console.log(test);
         }
     },
     mounted() {
