@@ -15,6 +15,7 @@ export default {
             wrapper : null,
             map : null,
             marker : null,
+            placeMarker : [],
             mapOptions : null,
             mouseLatlng : null,
             bounds : null,
@@ -31,11 +32,8 @@ export default {
             navigator.geolocation.getCurrentPosition((pos) => {
                 this.drawKakaoMap(pos.coords.latitude, pos.coords.longitude);
                 this.drawMyPlace();
-
                 this.map.addOverlayMapTypeId(kakao.maps.MapTypeId.TRAFFIC);
-
                 this.clickMarker();
-
                 this.changePlaceMarker();
             });
         },
@@ -43,25 +41,31 @@ export default {
         async fetchData(la, ma) {
             var _this = this;
             var imageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png"; 
-            this.originData = await axios.get(`${process.env.VUE_APP_REST_API}?lat=${ma}&lng=${la}`);
+            var response = await axios.get(`${process.env.VUE_APP_REST_API}?lat=${ma}&lng=${la}`);
+            
+            if (response.data.data != null) {
+                _this.data = [];
+                
+                _this.resetMarker();
 
-            if (this.originData.data.data != null) {
-                this.originData.data.data.map(item => {
+                response.data.data.map(item => {
                     _this.data.push({ title :  item.statNm, latlng: new window.kakao.maps.LatLng(item.lat, item.lng)});
                 });
     
-                this.data.map((item, idx) => {
-                    var imageSize = new kakao.maps.Size(24, 35); 
-                    var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize); 
+               this.data.map((item, idx) => {
+                    var imageSize = new window.kakao.maps.Size(24, 35); 
+                    var markerImage = new window.kakao.maps.MarkerImage(imageSrc, imageSize); 
                     
-                    var marker = new kakao.maps.Marker({
+                    var marker = new window.kakao.maps.Marker({
                         map: _this.map,
                         position: _this.data[idx].latlng,
                         title : _this.data[idx].title,
                         image : markerImage,
                     });
+
+                    _this.placeMarker.push(marker);
                 });
-            } else {
+            } else { 
                 return;
             }
         },
@@ -103,11 +107,19 @@ export default {
                 _this.fetchData(_this.mouseLatlng.La, _this.mouseLatlng.Ma);
             });
         },
+
+        resetMarker() {
+            this.placeMarker.map(item => {
+                item.setMap(null);
+            });
+        }
     },
     mounted() {
         if (!window.kakao || !window.kakao.maps) {
             const scriptTag = document.createElement("script");
             scriptTag.src = `//dapi.kakao.com/v2/maps/sdk.js?autoload=false&appkey=${process.env.VUE_APP_KAKAO_API_KEY}`;
+            // dapi.kakao.com/v2/maps/sdk.js?appkey=APIKEY&libraries=services,clusterer,drawing
+
 
             scriptTag.addEventListener("load", () => {
                 window.kakao.maps.load(this.drawGeoMap);
