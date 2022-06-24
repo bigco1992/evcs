@@ -41,8 +41,8 @@ export default {
 
         async fetchData(la, ma) {
             // const response = await axios.get(`https://evloadapi.herokuapp.com/?lat=${ma}&lng=${la}`);
-            let test = await axios.get(`?lat=${ma}&lng=${la}`);
-            console.log(test);
+            let response = await axios.get(`${process.env.VUE_APP_REST_API}?lat=${ma}&lng=${la}`);
+            console.log(response);
         },
 
         changePlaceMarker() {
