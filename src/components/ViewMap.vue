@@ -11,6 +11,7 @@ export default {
     data() {
         return {
             data: [],
+            originData: null,
             wrapper : null,
             map : null,
             marker : null,
@@ -41,24 +42,28 @@ export default {
 
         async fetchData(la, ma) {
             var _this = this;
-            let response = await axios.get(`${process.env.VUE_APP_REST_API}?lat=${ma}&lng=${la}`);
             var imageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png"; 
+            this.originData = await axios.get(`${process.env.VUE_APP_REST_API}?lat=${ma}&lng=${la}`);
 
-            response.data.data.map(item => {
-                _this.data.push({ title :  item.statNm, latlng: new window.kakao.maps.LatLng(item.lat, item.lng)});
-            });
-
-            this.data.map((item, idx) => {
-                var imageSize = new kakao.maps.Size(24, 35); 
-                var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize); 
-                
-                var marker = new kakao.maps.Marker({
-                    map: _this.map,
-                    position: _this.data[idx].latlng,
-                    title : _this.data[idx].title,
-                    image : markerImage,
+            if (this.originData.data.data != null) {
+                this.originData.data.data.map(item => {
+                    _this.data.push({ title :  item.statNm, latlng: new window.kakao.maps.LatLng(item.lat, item.lng)});
                 });
-            })            
+    
+                this.data.map((item, idx) => {
+                    var imageSize = new kakao.maps.Size(24, 35); 
+                    var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize); 
+                    
+                    var marker = new kakao.maps.Marker({
+                        map: _this.map,
+                        position: _this.data[idx].latlng,
+                        title : _this.data[idx].title,
+                        image : markerImage,
+                    });
+                });
+            } else {
+                return;
+            }
         },
 
         changePlaceMarker() {
