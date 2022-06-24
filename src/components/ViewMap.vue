@@ -10,7 +10,7 @@ import axios from "axios";
 export default {
     data() {
         return {
-            data: null,
+            data: [],
             wrapper : null,
             map : null,
             marker : null,
@@ -40,9 +40,25 @@ export default {
         },
 
         async fetchData(la, ma) {
-            // const response = await axios.get(`https://evloadapi.herokuapp.com/?lat=${ma}&lng=${la}`);
+            var _this = this;
             let response = await axios.get(`${process.env.VUE_APP_REST_API}?lat=${ma}&lng=${la}`);
-            console.log(response);
+            var imageSrc = "https://t1.daumcdn.net/localimg/localimages/07/mapapidoc/markerStar.png"; 
+
+            response.data.data.map(item => {
+                _this.data.push({ title :  item.statNm, latlng: new window.kakao.maps.LatLng(item.lat, item.lng)});
+            });
+
+            this.data.map((item, idx) => {
+                var imageSize = new kakao.maps.Size(24, 35); 
+                var markerImage = new kakao.maps.MarkerImage(imageSrc, imageSize); 
+                
+                var marker = new kakao.maps.Marker({
+                    map: _this.map,
+                    position: _this.data[idx].latlng,
+                    title : _this.data[idx].title,
+                    image : markerImage,
+                });
+            })            
         },
 
         changePlaceMarker() {
@@ -79,11 +95,6 @@ export default {
                 _this.mouseLatlng = mouseEvent.latLng;
                 _this.marker.setPosition(_this.mouseLatlng);
                 
-                // 위도
-                console.log(_this.mouseLatlng.La);
-                // 경도
-                console.log(_this.mouseLatlng.Ma);
-
                 _this.fetchData(_this.mouseLatlng.La, _this.mouseLatlng.Ma);
             });
         },
